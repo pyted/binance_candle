@@ -1,5 +1,0 @@
-numpy
-pandas
-candlelite
-paux
-pbinance

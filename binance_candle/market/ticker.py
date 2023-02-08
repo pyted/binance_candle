@@ -1,4 +1,5 @@
 from binance_candle.market._base import MarketBase
+from typing import Union
 
 __all__ = ['Ticker']
 
@@ -88,3 +89,16 @@ class Ticker(MarketBase):
         :param symbol: 产品
         '''
         return self.inst.market.get_ticker_price(symbol=symbol)
+
+    def get_depth(self, symbol: str, limit: Union[int, str] = ''):
+        '''
+        现货
+            https://binance-docs.github.io/apidocs/spot/cn/#38a975b802
+        U本位合约
+            https://binance-docs.github.io/apidocs/futures/cn/#38a975b802
+        币本位合约
+            https://binance-docs.github.io/apidocs/delivery/cn/#38a975b802
+        :param symbol: 产品
+        :param limit: 数量
+        '''
+        return self.inst.market.get_depth(symbol=symbol, limit=limit)
