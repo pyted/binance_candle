@@ -13,9 +13,16 @@
 
 ## 2 安装Binance_candle
 
+
 ```cmd
 pip3 install binance_candle
 ```
+
+GITHUB：https://github.com/pyted/binance_candle
+
+里面有Binance_candle的使用例子：
+
+![](vx_images/244075001625094.png)
 
 ## 3 快速开始
 
@@ -23,7 +30,7 @@ pip3 install binance_candle
 
 以U本位产品为例，运行run_candle_map函数后，会以多线程的方式维护candle_map属性，保证candle_map的时效性。
 
-candle_map的格式：candle_map[<symbol:str>] = <candle:np.ndarray>
+candle_map的格式：candle_map[\<symbol:str\>] = \<candle:np.ndarray\>
 
 ```python
 from binance_candle import CandleServer
@@ -106,7 +113,7 @@ print(bookTickerMap)
 
 ## 4 历史K线candle的数据说明
 
-#### 4.1 K线的格式
+### 4.1 K线的格式
 
 为了保证运算的速度，candle采用np.ndarray类型存储。
 
@@ -129,19 +136,19 @@ print(bookTickerMap)
 
 注：Python对于数字精度的支持并不优秀，对于模拟运算或者实盘决策，使用浮点数是安全的，但对于交易接口，例如下单的数量和金额，采用字符串类型更为安全，在全部pyted的量化交易架构中，与订单相关的数字对象均采用字符串用于提交。
 
-#### 4.2 K线的存储规则
+### 4.2 K线的存储规则
 
 本地历史K线数据是按照日期拆分拆分存储，每个CSV文件保存指定日期指定产品的全部K线数据。
 
-每个CSV文件的时间跨度为：00:00:00 ~ 24:00:00 - <bar>
+每个CSV文件的时间跨度为：00:00:00 ~ 24:00:00 - \<bar\>
 
 如果保存ETH 2023年1月1日 时间粒度bar是1分钟的数据：CSV中的数据条数是1440条，起点为时间：00:00:00，终点时间为：23:59:00，同样如果保存时间粒度bar是1小时的数据，存储的数据时间终点是：23:00:00
 
 由于是按照日期分片存储，'2023-01-01'在美式日期与中国日期对应的时间戳并不相同，Binance_candle默认采用'America/New_York'时区。
 
-![](vx_images/136463293899242.png)
+![](vx_images/495193492836002.png)
 
-#### 4.3 K线的安全性
+### 4.3 K线的安全性
 
 Binance_candle中的全部K线数据均会受到严格的验证，保证数据的安全性。
 
@@ -181,7 +188,7 @@ candleServer = CandleServer('SPOT', CandleRule)
 
 这两个方法均受到CandleRule的规则约束。下面是CandleRule中各个属性的作用规则。
 
-![](vx_images/167613696835995.png)
+![](vx_images/480313210278479.png)
 
 ### 6.2 服务权重系数
 
@@ -397,7 +404,7 @@ run_candle_map方法执行流程简图：
 
 ### 7.2 candle_map 实时K线字典属性
 
-格式：candle_map[<symbol:str>] = <candle:np.ndarray>
+格式：candle_map[\<symbol:str\>] = \<candle:np.ndarray\>
 
 - KEY：symbol 产品名称
 - VALUE：candle np.ndarray类型的K线数据
@@ -406,7 +413,7 @@ run_candle_map方法执行流程简图：
 
 |参数|类型|说明|
 |:---|:---|:---|
-|symbolstr|产品名称|
+|symbol|str|产品名称|
 |security_seconds|int|安全间隔（单位：秒）|
 
 为什么要有这个方法：
@@ -549,7 +556,7 @@ candleServer = CandleServer('SPOT')
 market = candleServer.market
 ```
 
-行情数据的返回格式均为：{'code':<状态码>, 'data':<主体数据>, 'msg':<提示信息>}
+行情数据的返回格式均为：{'code':\<状态码\>, 'data':\<主体数据\>, 'msg':\<提示信息\>}
 
 状态码为200表示成功。
 
@@ -759,6 +766,8 @@ print(tickerPrice)
 >> }
 ```
 
+
+
 ### 9.4 交易规范
 
 #### 9.4.1 缓存机制
@@ -775,7 +784,7 @@ print(tickerPrice)
 
 如果不使用缓存，可以将过期时间expire_seconds设置为0（单位：秒）。
 
-#### 9.4.1 get_exchangeInfos 完整的交易规范
+#### 9.4.2 get_exchangeInfos 完整的交易规范
 
 |参数|类型|默认值|说明|
 |:---|:---|:---|:---|
@@ -884,7 +893,7 @@ print(exchangeInfos)
 >> }
 ```
 
-#### 9.4.2 get_exchangeInfo 单个产品的交易规范
+#### 9.4.3 get_exchangeInfo 单个产品的交易规范
 
 |参数|类型|默认值|说明|
 |:---|:---|:---|:---|
@@ -892,6 +901,15 @@ print(exchangeInfos)
 |expire_seconds|int|300|缓存过期时间|
 
 获取U本位合约中BTCUSDT的交易规范
+
+
+```python
+from binance_candle import Market
+
+exchangeInfos = Market('UM').get_exchangeInfo('BTCUSDT')
+print(exchangeInfos)
+```
+
 
 ```text
 >> {
@@ -973,7 +991,7 @@ print(exchangeInfos)
 
 注：其中的filter字典属性是binance_candle对filters列表的整合，并不属于官方返回的结果。
 
-#### 9.4.3 get_symbols_trading_on 获取可以交易的产品名称
+#### 9.4.4 get_symbols_trading_on 获取可以交易的产品名称
 
 |参数|类型|默认值|说明|
 |:---|:---|:---|:---|
@@ -1020,13 +1038,13 @@ print(symbols_trading_on)
 >> }
 ```
 
-#### 9.4.3 get_symbols_trading_off 获取不可交易的产品名称
+#### 9.4.5 get_symbols_trading_off 获取不可交易的产品名称
 
 |参数|类型|默认值|说明|
 |:---|:---|:---|:---|
 |expire_seconds|int|300|缓存过期时间|
 
-获取U本位合约正在交易的产品名称列表
+获取U本位合约不可交易的产品名称列表
 
 ```python
 from binance_candle import Market
@@ -1046,6 +1064,54 @@ print(symbols_trading_off)
 >>     ],
 >>     'msg': ''
 >> }
+```
+
+
+### 9.5 深度信息
+
+#### 9.5.1 get_get_depth 获取单个产品的深度信息
+
+```python
+from binance_candle import Market
+from pprint import pprint
+
+if __name__ == '__main__':
+    # 币币交易：SPOT；U本位合约：UM；币本位合约：CM
+    instType = 'UM'
+    # 实例化行情Market
+    market = Market(instType)
+    # 单个产品的深度信息 limit : 数量
+    pprint(market.get_depth('BTCUSDT', limit=10))
+```
+
+输出：
+
+```text
+>> {'code': 200,
+>>  'data': {'E': 1675823293991,
+>>           'T': 1675823293984,
+>>           'asks': [['23290.50', '15.695'],
+>>                    ['23290.80', '0.003'],
+>>                    ['23290.90', '0.001'],
+>>                    ['23291.00', '0.084'],
+>>                    ['23291.10', '0.006'],
+>>                    ['23291.20', '0.034'],
+>>                    ['23291.30', '0.017'],
+>>                    ['23291.40', '0.258'],
+>>                    ['23291.50', '0.010'],
+>>                    ['23291.70', '0.821']],
+>>           'bids': [['23290.40', '18.252'],
+>>                    ['23290.30', '2.230'],
+>>                    ['23290.20', '1.156'],
+>>                    ['23290.10', '0.130'],
+>>                    ['23290.00', '2.182'],
+>>                    ['23289.90', '0.010'],
+>>                    ['23289.80', '0.172'],
+>>                    ['23289.70', '0.151'],
+>>                    ['23289.60', '0.044'],
+>>                    ['23289.50', '0.002']],
+>>           'lastUpdateId': 2476916281979},
+>>  'msg': ''}
 ```
 
 ## 10 历史K线管理
@@ -1126,7 +1192,7 @@ load_candle_by_date 以日期为单位读取单个产品历史K线数据
 |valid_end|bool|True|是否验证数据的时间终点|
 
 
-读取U本位合约中BTCUSDT从2023-01-01 00:00:00 ~ 2023-01-10 23:59:00的历史K线数据
+读取U本位合约中BTCUSDT从2023-01-01 ~ 2023-01-10 的历史K线数据
 
 ```python
 from binance_candle import BinanceLite
@@ -1163,7 +1229,7 @@ print(candle)
 
 
 
-读取U本位合约从2023-01-01 00:00:00 ~ 2023-01-10 23:59:00的历史K线数据字典
+读取U本位合约从2023-01-01 ~ 2023-01-10 的历史K线数据字典
 
 ```python
 from binance_candle import BinanceLite
@@ -1201,7 +1267,7 @@ save_candle_by_date 以日期为单位保存单个产品历史K线数据
 |valid_start|bool|True|是否验证数据的时间起点|
 |valid_end|bool|True|是否验证数据的时间终点|
 
-读取U本位合约中BTCUSDT从2023-01-01 00:00:00 ~ 2023-01-10 23:59:00的历史K线数据，截取2023-01-05 00:00:00 ~ 2023-01-06 23:59:00日期范围数据保存到指定文件夹中。
+读取U本位合约中BTCUSDT从2023-01-01~ 2023-01-10 的历史K线数据，截取2023-01-05 ~ 2023-01-06 日期范围数据保存到指定文件夹中。
 
 ```python
 from binance_candle import BinanceLite
@@ -1215,7 +1281,7 @@ candle = binanceLite.load_candle_by_date(
 )
 
 binanceLite.save_candle_by_date(
-    candle='UM',
+    candle=candle,
     instType='UM',
     symbol='BTCUSDT',
     start='2023-01-05',
@@ -1246,7 +1312,7 @@ save_candle_by_date 以日期为单位保存产品历史K线数据字典
 |valid_start|bool|True|是否验证数据的时间起点|
 |valid_end|bool|True|是否验证数据的时间终点|
 
-读取U本位合约从2023-01-01 00:00:00 ~ 2023-01-10 23:59:00的历史K线数据字典，截取2023-01-05 00:00:00 ~ 2023-01-06 23:59:00日期范围数据保存到指定文件夹中。
+读取U本位合约从2023-01-01 ~ 2023-01-10 的历史K线数据字典，截取2023-01-05 ~ 2023-01-06 日期范围数据保存到指定文件夹中。
 
 ```python
 from binance_candle import BinanceLite
