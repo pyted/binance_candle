@@ -1,6 +1,5 @@
-import numpy as np
-import pbinance
 from typing import Literal
+import pbinance
 from binance_candle import exception
 
 
