@@ -1,4 +1,4 @@
-# Binance_candle 
+# Binance_candle v1.0.4
 
 ## 1 Binance_candle的设计目的？
 
