@@ -8,7 +8,7 @@ from candlelite.crypto.binace_lite import (
 
 class CandleRule():
     # 服务占用权重上限的比例 现货交易权重上限1200 合约交易权重上限2400
-    SERVER_WEIGHT = 0.9
+    SERVER_WEIGHT = 0.75
     # 收集的产品 all表示全部正在交易的产品
     SYMBOLS: Union[str, list] = 'all'
     # 过滤的产品

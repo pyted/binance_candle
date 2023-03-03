@@ -236,12 +236,12 @@ class CandleServer():
             # 现货交易
             if self.instType.upper() == 'SPOT':
                 # 下载一天的数据需要花费权重2 总权重1200 单次延时为 2 / (1200 * SERVER_WEIGHT)
-                # delay = 2 / (1200 * self.rule.SERVER_WEIGHT) - request_seconds
-                delay = 2 / (1200 * self.rule.SERVER_WEIGHT)
+                delay = 60 * 2 / (1200 * self.rule.SERVER_WEIGHT) - request_seconds
+                # delay = 2 / (1200 * self.rule.SERVER_WEIGHT)
             else:
                 # 下载一天的数据需要花费权重10 总权重2400 单次延时为 10 / (2400 * SERVER_WEIGHT)
-                # delay = 10 / (2400 * self.rule.SERVER_WEIGHT) - request_seconds
-                delay = 10 / (2400 * self.rule.SERVER_WEIGHT)
+                delay = 60 * 10 / (2400 * self.rule.SERVER_WEIGHT) - request_seconds
+                # delay = 10 / (2400 * self.rule.SERVER_WEIGHT)
             delay = round(delay, 4)
             if delay > 0:
                 time.sleep(delay)
