@@ -10,9 +10,10 @@ URL = "https://github.com/pyted/binance_candle"
 EMAIL = 'pyted@outlook.com'
 AUTHOR = 'pyted'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '1.0.5'
+VERSION = '1.0.6'
 
 REQUIRED = [
+    'pendulum',
     'numpy',
     'pandas',
     'candlelite',
