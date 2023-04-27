@@ -50,8 +50,15 @@ class CandleServer():
         self.__close_download_daily_thread = False
 
     # 获取过滤后的产品名称
-    def get_symbols_filtered(self) -> dict:
+    def get_symbols_filtered(
+            self,
+            type='trading_on'  #
+    ) -> dict:
         '''
+        :param type:
+            trading_on:     正在交易的
+            trading_off:    不在交易的
+            trading_all:    全部
         过滤内容：
             1. rule.SYMBOLS_FILTER
             2. rule.SYMBOLS_CONTAINS
@@ -65,11 +72,23 @@ class CandleServer():
         ):
             msg = 'rule.SYMBOLS must be "all" or list type'
             raise exception.RuleException(msg)
+        if type not in ['trading_on', 'trading_off', 'trading_all']:
+            msg = 'type must in ["trading_on","trading_off","trading_all"].'
+            raise exception.ParamException(msg)
         # 产品为全部 self.rule.SYMBOLS = 'all'
         if isinstance(self.rule.SYMBOLS, str) and self.rule.SYMBOLS.lower() == 'all':
-            symbols_trading_result = self.market.get_symbols_trading_on(
-                expire_seconds=60 * 60,  # 使用的缓存过期时间
-            )
+            if type == 'trading_on':
+                symbols_trading_result = self.market.get_symbols_trading_on(
+                    expire_seconds=60 * 60,  # 使用的缓存过期时间
+                )
+            elif type == 'trading_off':
+                symbols_trading_result = self.market.get_symbols_trading_off(
+                    expire_seconds=60 * 60,  # 使用的缓存过期时间
+                )
+            else:
+                symbols_trading_result = self.market.get_symbols_all(
+                    expire_seconds=60 * 60,  # 使用的缓存过期时间
+                )
             if symbols_trading_result['code'] != 200:
                 return symbols_trading_result
             symbols = symbols_trading_result['data']
@@ -90,13 +109,17 @@ class CandleServer():
             if self.rule.SYMBOL_ENDSWITH and not symbol.endswith(self.rule.SYMBOL_ENDSWITH):
                 continue
             symbols_filtered1.append(symbol)
-        # 第二次过滤 self.filter 过滤数据不足，请求错误的symbol -> symbols_filtered2
-        symbols_filtered2 = []
-        for symbol in symbols_filtered1:
-            symbol: str
-            if self.filter.check(symbol):  # True 不过滤
-                symbols_filtered2.append(symbol)
-        result = {'code': 200, 'data': symbols_filtered2, 'msg': ''}
+        # 仅当trading-on是否进行第二次过滤
+        if type == 'trading_on':
+            # 第二次过滤 self.filter 过滤数据不足，请求错误的symbol -> symbols_filtered2
+            symbols_filtered2 = []
+            for symbol in symbols_filtered1:
+                symbol: str
+                if self.filter.check(symbol):  # True 不过滤
+                    symbols_filtered2.append(symbol)
+            result = {'code': 200, 'data': symbols_filtered2, 'msg': ''}
+        else:
+            result = {'code': 200, 'data': symbols_filtered1, 'msg': ''}
         return result
 
     # 按照日期下载历史K线
@@ -104,12 +127,17 @@ class CandleServer():
             self,
             start: Union[str, int, float, datetime.date],
             end: Union[str, int, float, datetime.date, None] = None,
+            type: str = 'trading_on',
             replace=False,
     ):
         '''
         :param start: 起始日期
         :param end: 终止日期
             None 使用昨日日期
+        :param type: 产品交易类型
+            trading_on      正在交易的产品
+            trading_off     不可交易的产品
+            trading_all     全部产品
         :param replace: 是否替换本地文件
         '''
         # 执行下载使用的临时过滤器，过滤数据异常的产品
@@ -125,6 +153,7 @@ class CandleServer():
         for date in date_range:
             self.__download_candles_by_date(
                 date=date,
+                type=type,
                 replace=replace,
             )
         # 删除临时过滤器
@@ -134,10 +163,15 @@ class CandleServer():
     def __download_candles_by_date(
             self,
             date: Union[str, int, float, datetime.date],
+            type='trading_on',
             replace=False,
     ):
         '''
         :param date: 日期
+        :param type: 产品交易类型
+            trading_on      正在交易的产品
+            trading_off     不可交易的产品
+            trading_all     全部产品
         :param replace: 是否替换本地文件
         '''
         # 日期字符串，用于控制台打印
@@ -146,7 +180,7 @@ class CandleServer():
         else:
             date_str = _date.to_fmt(date, self.rule.TIMEZONE, '%Y-%m-%d')
         # 获取产品列表
-        get_symbols_filtered_result = self.get_symbols_filtered()
+        get_symbols_filtered_result = self.get_symbols_filtered(type=type, )
         # **[ERROR RAISE]** 产品列表有误
         if get_symbols_filtered_result['code'] != 200:
             msg = '[get_symbols_filtered] code={code} msg={msg}'.format(
@@ -156,8 +190,9 @@ class CandleServer():
             self.log.error(msg)
             raise exception.CodeException(msg)
         symbols = get_symbols_filtered_result['data']
-        # 过滤下载异常的产品
-        symbols = [symbol for symbol in symbols if self._download_filter.check(symbol)]
+        # 过滤下载异常的产品(仅当下载正在运行交易的产品，进行过滤）
+        if type == 'trading_on':
+            symbols = [symbol for symbol in symbols if self._download_filter.check(symbol)]
         # 产品逐个下载
         download_detail = {
             'all': len(symbols),  # 总数
@@ -528,7 +563,8 @@ class CandleServer():
     def _download_daily(
             self,
             start: Union[str, int, float, datetime.date, None] = None,
-            replace: bool = False
+            replace: bool = False,
+            type='trading_on',
     ):
         # 下载补充数据
         yesterday = pendulum.yesterday(tz=self.rule.TIMEZONE)
@@ -536,7 +572,14 @@ class CandleServer():
         # 如果有start 下载start ~ yesterday的数据
         if start == None:
             start = yesterday
-        self.download_candles_by_date(start=start, end=yesterday, replace=replace)
+        # v1.0.7 防止下载start~yesterday的时间过长，中间的数据缺失
+        while True:
+            self.download_candles_by_date(start=start, end=yesterday, replace=replace, type=type)
+            if pendulum.yesterday(tz=self.rule.TIMEZONE) == yesterday:
+                break
+            else:
+                yesterday = pendulum.yesterday(tz=self.rule.TIMEZONE)
+
         while True:
             if self.__close_download_daily_thread == True:
                 break
@@ -550,24 +593,30 @@ class CandleServer():
                 self.download_candles_by_date(
                     start=yesterday,
                     end=yesterday,
+                    type=type,
                 )
                 last_day = yesterday
         self.__close_download_daily_thread = False
 
     def download_daily(self,
                        start: Union[str, int, float, datetime.date, None] = None,
-                       replace: bool = False
+                       replace: bool = False,
+                       type='trading_on',
                        ):
         '''
         :param start: 起始日期
             start != None 补充下载start ~ yesterday 的历史K线数据
         :param replace: 是否替换本地数据
+        :param type: 产品交易类型
+            trading_on      正在交易的产品
+            trading_off     不可交易的产品
+            trading_all     全部产品
         '''
         if self._download_daily_thread and self._download_daily_thread.isAlive():
             msg = 'Server download daily thread is running. Cannot run repeatedly.'
             print(msg)
             return None
-        t = self._download_daily(start=start, replace=replace)
+        t = self._download_daily(start=start, replace=replace, type=type)
         self._download_daily_thread = t
         time.sleep(1)
 

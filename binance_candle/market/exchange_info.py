@@ -156,3 +156,35 @@ class ExchangeInfo(MarketBase):
             'msg': ''
         }
         return result
+
+    # 获取全部的产品列表
+    # Weight: 现货10 合约1 使用缓存0
+    def get_symbols_all(
+            self,
+            expire_seconds: int = 60 * 5
+    ) -> dict:
+        '''
+        :param expire_seconds: 缓存时间（秒）
+        '''
+
+        exchangeInfos_result = self.get_exchangeInfos(expire_seconds)
+        # [ERROR RETURN] 异常交易规则与交易
+        if exchangeInfos_result['code'] != 200:
+            return exchangeInfos_result
+        # 不可交易的产品名称 status != 'TRADING'
+        if self.instType == 'CM':  # 币本位合约交易的状态名称特殊
+            status_name = 'contractStatus'
+        else:
+            status_name = 'status'
+
+        symbols = [
+            data['symbol']
+            for data in exchangeInfos_result['data']['symbols']
+        ]
+        # [RETURN]
+        result = {
+            'code': 200,
+            'data': symbols,
+            'msg': ''
+        }
+        return result
