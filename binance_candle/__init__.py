@@ -3,4 +3,4 @@ from binance_candle.server import (CandleRule, CandleServer, CandleServerSPOT, C
 from binance_candle import utils
 from candlelite.crypto.binace_lite import BinanceLite
 
-__version__ = '1.0.7'
+__version__ = '1.0.8'

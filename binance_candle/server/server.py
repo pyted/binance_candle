@@ -140,6 +140,15 @@ class CandleServer():
             trading_all     全部产品
         :param replace: 是否替换本地文件
         '''
+        # 计算每天下载数据的延时 delay
+        # 现货交易
+        if self.instType.upper() == 'SPOT':
+            # 下载一天的数据需要花费权重2 总权重1200 单次延时为 2 / (1200 * SERVER_WEIGHT)
+            delay = 60 * 2 / (1200 * self.rule.SERVER_WEIGHT)
+        else:
+            # 下载一天的数据需要花费权重10 总权重2400 单次延时为 10 / (2400 * SERVER_WEIGHT)
+            delay = 60 * 10 / (2400 * self.rule.SERVER_WEIGHT)
+        delay = round(delay, 4)
         # 执行下载使用的临时过滤器，过滤数据异常的产品
         self._download_filter = _filter.Filter()
         # 日期终点
@@ -156,6 +165,9 @@ class CandleServer():
                 type=type,
                 replace=replace,
             )
+
+            if delay > 0:
+                time.sleep(delay)
         # 删除临时过滤器
         del self._download_filter
 
