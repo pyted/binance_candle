@@ -4,10 +4,11 @@ from pprint import pprint
 from binance_candle.utils import candle_to_df
 
 if __name__ == '__main__':
+    proxy_host = None  # http://xxx.xx.xx.xx
     # 币币交易：SPOT；U本位合约：UM；币本位合约：CM
     instType = 'UM'
     # 永续合约，默认规则
-    candleServer = CandleServer(instType, CandleRule)
+    candleServer = CandleServer(instType, CandleRule, proxy_host=proxy_host)
     # 启动K线维护服务
     candleServer.run_candle_map()
     # 被异步维护的candle_map字典

@@ -17,7 +17,7 @@ from binance_candle.server.rule import CandleRule
 
 
 class CandleServer():
-    def __init__(self, instType: Literal['SPOT', 'UM', 'CM'], rule=CandleRule):
+    def __init__(self, instType: Literal['SPOT', 'UM', 'CM'], rule=CandleRule, proxies={}, proxy_host: str = None):
         # 规则
         self.rule = rule
         # # 每日下载历史K线的时间 -> 维护self.rule.DOWNLOAD_TIME
@@ -29,7 +29,7 @@ class CandleServer():
         # 产品类型
         self.instType = instType.upper()
         # 行情客户端
-        self.market = Market(instType=instType, key=self.rule.KEY, secret=self.rule.SECRET, timezone=self.rule.TIMEZONE)
+        self.market = Market(instType=instType, key=self.rule.KEY, secret=self.rule.SECRET, timezone=self.rule.TIMEZONE,proxies=proxies,proxy_host=proxy_host)
         # 产品过滤器 用于candle_map的更新
         self.filter = _filter.Filter()
         # BinanceLite

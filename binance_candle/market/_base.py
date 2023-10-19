@@ -11,7 +11,9 @@ class MarketBase(pbinance.Binance):
             instType: Literal['SPOT', 'UM', 'CM'],
             key: str = '',
             secret: str = '',
-            timezone='America/New_York'
+            timezone='America/New_York',
+            proxies={},
+            proxy_host: str = None,
     ):
         '''
         主要为了处理inst
@@ -30,7 +32,7 @@ class MarketBase(pbinance.Binance):
             Asia/Shanghai:      中国时间
         '''
         # 父类
-        super(MarketBase, self).__init__(key=key, secret=secret)
+        super(MarketBase, self).__init__(key=key, secret=secret, proxies=proxies, proxy_host=proxy_host)
         # 时区与产品类别
         self.timezone = timezone
         self.instType = instType.upper()

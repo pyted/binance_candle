@@ -3,10 +3,11 @@ from binance_candle.utils import candle_to_df, df_to_candle
 from pprint import pprint
 
 if __name__ == '__main__':
+    proxy_host = None # http://xxx.xx.xx.xx
     # 币币交易：SPOT；U本位合约：UM；币本位合约：CM
     instType = 'UM'
     # 实例化行情Market
-    market = Market(instType, timezone='America/New_York')
+    market = Market(instType, timezone='America/New_York',proxy_host=proxy_host)
     # 按照起始时间获取历史K线
     result = market.get_history_candle(
         symbol='BTCUSDT',

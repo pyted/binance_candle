@@ -36,7 +36,6 @@ class ExchangeInfo(MarketBase):
                 <上次更新的毫秒时间戳>
             ]
         '''
-
         if (
                 # 无缓存数据
                 not hasattr(self, '_exchangeInfo_caches')
