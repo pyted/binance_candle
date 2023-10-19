@@ -10,19 +10,18 @@ class Market(HistoryCandle, Ticker, ExchangeInfo):
 
 
 class MarketSPOT(Market):
-    def __init__(self, key: str = '', secret: str = '', timezone: str = 'America/New_York', proxies={},
-                 proxy_host: str = None, ):
+    def __init__(self, key: str = '', secret: str = '', timezone: str = 'America/New_York', proxies={}, proxy_host: str = None, ):
         instType = 'SPOT'
         super(MarketSPOT, self).__init__(instType=instType, key=key, secret=secret, timezone=timezone, proxies=proxies, proxy_host=proxy_host)
 
 
 class MarketUM(Market):
-    def __init__(self, key: str = '', secret: str = '', timezone: str = 'America/New_York'):
+    def __init__(self, key: str = '', secret: str = '', timezone: str = 'America/New_York',proxies={}, proxy_host: str = None, ):
         instType = 'UM'
         super(MarketUM, self).__init__(instType=instType, key=key, secret=secret, timezone=timezone, proxies=proxies, proxy_host=proxy_host)
 
 
 class MarketCM(Market):
-    def __init__(self, key: str = '', secret: str = '', timezone: str = 'America/New_York'):
+    def __init__(self, key: str = '', secret: str = '', timezone: str = 'America/New_York',proxies={}, proxy_host: str = None, ):
         instType = 'CM'
         super(MarketCM, self).__init__(instType=instType, key=key, secret=secret, timezone=timezone, proxies=proxies, proxy_host=proxy_host)
