@@ -1,3 +1,9 @@
+-------------------------------------------------------
+# Biance_candle已停止维护，功能已整合在Binance_interface中：
+
+GITHUB：https://github.com/pyted/binance_interface
+-------------------------------------------------------
+
 # Binance_candle v1.0.10
 
 ## 1 Binance_candle的设计目的？
